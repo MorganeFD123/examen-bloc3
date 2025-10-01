@@ -2,23 +2,15 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const booksrouter = require('./router/books')
 const usersRouter = require('./router/users')
+const loansRouter = require('./router/loans')
 const cors = require('cors')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 const db = require('./services/database')
 
-const JWT_SECRET = "HelloThereImObiWan"
-function authenticateToken(req, res, next) {
-    const token = req.cookies.token
-    if (!token) return res.sendStatus(401)
+const { authenticateToken } = require('./middlewares/auth')
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403)
-        req.user = user
-        next()
-    })
-}
 const corsOptions = {
     origin: 'http://localhost:5173',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -32,6 +24,7 @@ router.use(cors(corsOptions));
 router.use(cookieParser());
 router.use('/api/books', booksrouter);
 router.use('/api/users', usersRouter);
+router.use('/api/loans', loansRouter);
 
 router.post('/api/logout', (req, res) => {
     req.session.destroy();
