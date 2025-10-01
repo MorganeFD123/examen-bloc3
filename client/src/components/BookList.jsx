@@ -6,6 +6,7 @@ const BookList = () => {
     const navigate = useNavigate()
     const [books, setBooks] = useState([])
     const [userRole, setUserRole] = useState('')
+    const [loanStatus, setLoanStatus] = useState({})
     const base = import.meta.env.VITE_BASE_URL || '/'
 
     useEffect(() => {
@@ -34,6 +35,32 @@ const BookList = () => {
         navigate('/')
     }
 
+    const handleLoan = async (bookId) => {
+        const expectedReturnDate = prompt("Entrez la date de retour prévue (YYYY-MM-DD, max 30 jours) :")
+        if (!expectedReturnDate) return
+
+        setLoanStatus(prev => ({ ...prev, [bookId]: "En cours..." }))
+        try {
+            const res = await fetch(base + 'api/loans', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_book: bookId, expected_return_date: expectedReturnDate })
+            })
+            const data = await res.json()
+            if (res.status === 201) {
+                setLoanStatus(prev => ({ ...prev, [bookId]: "Emprunté avec succès !" }))
+                setBooks(books => books.map(b => b.id === bookId ? { ...b, statut: 'emprunté' } : b))
+            } else {
+                setLoanStatus(prev => ({ ...prev, [bookId]: data.message || "Erreur lors de l'emprunt." }))
+            }
+        } catch (err) {
+            setLoanStatus(prev => ({ ...prev, [bookId]: "Erreur réseau." }))
+        }
+    }
+
     return (
         <div className="container">
             <h2>Liste des Livres - Librairie XYZ</h2>
@@ -47,6 +74,7 @@ const BookList = () => {
                             <th>Date de publication</th>
                             <th>Statut</th>
                             <th>Détails</th>
+                            <th>Emprunter</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,6 +86,16 @@ const BookList = () => {
                                 <td>{book.date_publication}</td>
                                 <td>{book.statut}</td>
                                 <td><a href={`${base}book/${book.id}`}>Voir les détails</a></td>
+                                <td>
+                                    {book.statut === 'disponible' && userRole !== 'Guest' ? (
+                                        <>
+                                            <button onClick={() => handleLoan(book.id)}>Emprunter</button>
+                                            {loanStatus[book.id] && <div className="loan-status">{loanStatus[book.id]}</div>}
+                                        </>
+                                    ) : (
+                                        <span style={{color: 'gray'}}>Indisponible</span>
+                                    )}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
