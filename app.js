@@ -1,5 +1,6 @@
 const express = require('express')
 const server = require('./server')
+const baseUrl = process.env.BASE_URL || '';
 
 const app = express()
 

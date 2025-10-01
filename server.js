@@ -20,7 +20,7 @@ function authenticateToken(req, res, next) {
     })
 }
 const corsOptions = {
-    origin: 'https://exam.andragogy.fr',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204

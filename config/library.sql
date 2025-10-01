@@ -109,3 +109,14 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+CREATE TABLE IF NOT EXISTS `loans` (
+  `id_loan` int AUTO_INCREMENT PRIMARY KEY,
+  `id_user` int NOT NULL,
+  `id_book` int NOT NULL,
+  `date_loan` date NOT NULL,
+  `expected_return_date` date DEFAULT NULL,
+  `actual_return_date` date DEFAULT NULL,
+  FOREIGN KEY (`id_user`) REFERENCES `utilisateurs`(`id`),
+  FOREIGN KEY (`id_book`) REFERENCES `livres`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
